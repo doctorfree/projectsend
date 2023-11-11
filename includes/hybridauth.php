@@ -13,6 +13,10 @@
                 "enabled" => get_option('google_signin_enabled'),
                 "keys" => array("id" => get_option("google_client_id"), "secret" => get_option("google_client_secret")),
             ),
+            "OpenID" => array(
+                "enabled" => get_option('oidc_signin_enabled'),
+                "keys" => array("id" => get_option("openid_client_id"), "secret" => get_option("openid_client_secret")),
+            ),
             "LinkedIn" => array(
                 "enabled" => get_option('linkedin_signin_enabled'),
                 "keys" => array("id" => get_option("linkedin_client_id"), "secret" => get_option("linkedin_client_secret")),
@@ -29,9 +33,6 @@
             "Yahoo" => array(
                 "enabled" => get_option('yahoo_signin_enabled'),
                 "keys" => array("id" => get_option("yahoo_client_id"), "secret" => get_option("yahoo_client_secret")),
-            ),
-            "OpenID" => array(
-                "enabled" => get_option('oidc_signin_enabled'),
             ),
             "MicrosoftGraph" => array(
                 "enabled" => get_option('microsoftgraph_signin_enabled'),

@@ -1417,6 +1417,24 @@ if (current_role_in($allowed_update)) {
 			}
 		}
 
+		/**
+		 * r1700 updates
+		 * Add the OpenID Sign in options to the database
+		 */
+		if ($last_update < 1700) {
+			$new_database_values = array(
+											'openid_client_id'		=> '',
+											'openid_client_secret'	=> '',
+											'oidc_signin_enabled'	=> '0',
+										);
+			
+			foreach($new_database_values as $row => $value) {
+				if ( add_option_if_not_exists($row, $value) ) {
+					$updates_made++;
+				}
+			}
+		}
+
 
         /** Update the database */
 		$statement = $dbh->prepare("UPDATE " . TABLE_OPTIONS . " SET value = :version WHERE name='last_update'");

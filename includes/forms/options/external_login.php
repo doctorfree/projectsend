@@ -26,6 +26,17 @@
                     'callback' => true,
                     'instructions' => LINK_DOC_GOOGLE_SIGN_IN,
                 ),
+                'openid' => array(
+                    'name' => 'OpenID',
+                    'icon' => 'openid',
+                    'fields' => array(
+                        'enabled' => 'oidc_signin_enabled',
+                        'id' => 'openid_client_id',
+                        'secret' => 'openid_client_secret',
+                    ),
+                    'callback' => true,
+                    'instructions' => LINK_DOC_OPENID_SIGN_IN,
+                ),
                 'linkedin' => array(
                     'name' => 'Linked In',
                     'icon' => 'linkedin',

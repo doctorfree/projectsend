@@ -294,3 +294,4 @@ define('LINK_DOC_RECAPTCHA', 'https://developers.google.com/recaptcha/intro');
 define('LINK_DOC_GOOGLE_SIGN_IN', 'https://developers.google.com/identity/protocols/OpenIDConnect');
 define('LINK_DOC_FACEBOOK_LOGIN', 'https://developers.facebook.com/docs/facebook-login/');
 define('LINK_DOC_LINKEDIN_LOGIN', 'https://www.linkedin.com/developers/');
+define('LINK_DOC_OPENID_SIGN_IN', 'https://openid.net/developers/how-connect-works/');

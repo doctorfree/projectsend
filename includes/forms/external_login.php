@@ -9,6 +9,10 @@
                 'enabled' => get_option('google_signin_enabled'),
                 'icon' => 'google',
             ),
+            'openid' => array(
+                'enabled' => get_option('oidc_signin_enabled'),
+                'icon' => 'openid',
+            ),
             'linkedin' => array(
                 'enabled' => get_option('linkedin_signin_enabled'),
                 'icon' => 'linkedin',

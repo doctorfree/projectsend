@@ -149,6 +149,8 @@ if ($_POST) {
         'yahoo_client_id',
         'yahoo_client_secret',
         'oidc_identifier_url',
+        'openid_client_id',
+        'openid_client_secret',
         'ldap_signin_enabled',
         'ldap_hosts',
         'ldap_port',
