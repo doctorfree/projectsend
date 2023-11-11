@@ -293,6 +293,10 @@ function get_install_base_queries($params = []) {
                                 ('openid_client_id', ''),
                                 ('openid_client_secret', ''),
                                 ('oidc_signin_enabled', '0'),
+                                ('oidc_auth_url', ''),
+                                ('oidc_token_url', ''),
+                                ('oidc_user_info_url', ''),
+                                ('oidc_user_info_scopes', []),
                                 ('recaptcha_enabled', '0'),
                                 ('recaptcha_site_key', ''),
                                 ('recaptcha_secret_key', ''),
@@ -386,7 +390,7 @@ function get_install_base_queries($params = []) {
                                 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
                                 ',
         ),
-        
+
         '16' => array(
             'table' => TABLE_USER_META,
             'query' => 'CREATE TABLE IF NOT EXISTS `'.TABLE_USER_META.'` (

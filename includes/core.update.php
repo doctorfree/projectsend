@@ -10,10 +10,10 @@
 
 $allowed_update = array(9,8,7);
 if (current_role_in($allowed_update)) {
-	
+
     $statement = $dbh->prepare("SET SQL_MODE='ALLOW_INVALID_DATES';");
     $statement->execute();
-	
+
     $update_data = get_latest_version_data();
     $update_data = json_decode($update_data);
 
@@ -43,7 +43,7 @@ if (current_role_in($allowed_update)) {
 			$last_update = $row['value'];
 		}
 	}
-	
+
 	if ($last_update < $update_data->local_version || !isset($last_update)) {
 
 		/**
@@ -55,7 +55,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 											'logo_filename' => ''
 										);
-			
+
 			foreach ($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -77,7 +77,7 @@ if (current_role_in($allowed_update)) {
              if ($last_update < 94) {
 			    $statement = $dbh->prepare("SELECT created_by FROM tbl_clients");
 			    $statement->execute();
-	
+
 			    if( $statement->rowCount() == 0 ) {
 				    $statement = $dbh->query("ALTER TABLE tbl_clients ADD created_by VARCHAR(".MAX_USER_CHARS.") NOT NULL");
 				    $updates_made++;
@@ -107,16 +107,16 @@ if (current_role_in($allowed_update)) {
 		 */
 		if ($last_update < 135) {
 			$statement = $dbh->query("SELECT * FROM " . TABLE_USERS . " WHERE id = '1'");
-	
+
 			$statement->setFetchMode(PDO::FETCH_ASSOC);
 			while ( $row = $statement->fetch() ) {
 				$set_admin_email = $row['email'];
 			}
-		
+
 			$new_database_values = array(
 											'admin_email_address' => $set_admin_email
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -145,7 +145,7 @@ if (current_role_in($allowed_update)) {
 				}
 				$updates_made++;
 			}
-		*/		
+		*/
 			/**
 			 * Add the "users can register" value to the options table.
 			 * Defaults to 0, since this is a new feature.
@@ -167,7 +167,7 @@ if (current_role_in($allowed_update)) {
 		if ($last_update < 189) {
 			$work_folder = ROOT_DIR.'/upload/';
 			$folders = glob($work_folder."*", GLOB_NOSORT);
-		
+
 			foreach ($folders as $folder) {
 				if(is_dir($folder) && !stristr($folder,'/temp') && !stristr($folder,'/files')) {
 					$files = glob($folder.'/*', GLOB_NOSORT);
@@ -228,10 +228,10 @@ if (current_role_in($allowed_update)) {
 				$statement->execute();
 
 				$updates_made++;
-		
+
 				/**
 				 * r215 updates
-				 * Change the engine of every table to InnoDB, to use foreign keys on the 
+				 * Change the engine of every table to InnoDB, to use foreign keys on the
 				 * groups feature.
 				 * Included inside the previous update since that is not an officially
 				 * released version.
@@ -330,7 +330,7 @@ if (current_role_in($allowed_update)) {
 				$updates_made++;
 			}
 		}
-		
+
 		/**
 		 * r266 updates
 		 * Set timestamp columns as real timestamp data, instead of INT
@@ -396,7 +396,7 @@ if (current_role_in($allowed_update)) {
 											'mail_smtp_pass' => '',
 											'mail_from_name' => get_option('this_install_title')
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -505,7 +505,7 @@ if (current_role_in($allowed_update)) {
 											'mail_copy_main_user' => '',
 											'mail_copy_addresses' => ''
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -530,7 +530,7 @@ if (current_role_in($allowed_update)) {
 											'version_new_features'	=> '',
 											'version_new_important'	=> ''
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -550,7 +550,7 @@ if (current_role_in($allowed_update)) {
 											'clients_auto_group'	=> '0',
 											'clients_can_upload'	=> '1'
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -584,7 +584,7 @@ if (current_role_in($allowed_update)) {
 											'email_new_client_by_self_text'			=> '',
 											'email_new_user_text'					=> ''
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -602,7 +602,7 @@ if (current_role_in($allowed_update)) {
 										'email_header_text'					=> '',
 										'email_footer_text'					=> '',
 									);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -619,7 +619,7 @@ if (current_role_in($allowed_update)) {
 										'email_pass_reset_customize'		=> '0',
 										'email_pass_reset_text'				=> '',
 									);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -646,7 +646,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 										'expired_files_hide' => '1',
 									);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -708,7 +708,7 @@ if (current_role_in($allowed_update)) {
 											'notifications_max_tries'	=> '2',
 											'notifications_max_days'	=> '15',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -772,7 +772,7 @@ if (current_role_in($allowed_update)) {
 											'pass_require_special'	=> '0',
 											'mail_smtp_auth'		=> 'none'
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -787,7 +787,7 @@ if (current_role_in($allowed_update)) {
 		 * Change the database collations
 		 */
 		if ($last_update < 557) {
-			$alter = [];			
+			$alter = [];
 			$statement = $dbh->exec('ALTER DATABASE ' . DB_NAME . ' CHARACTER SET utf8 COLLATE utf8_general_ci');
 			$statement = $dbh->query('SET foreign_key_checks = 0');
 			$statement = $dbh->query('SHOW TABLES');
@@ -832,7 +832,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 											'use_browser_lang'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -848,7 +848,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 											'clients_can_delete_own_files'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -866,7 +866,7 @@ if (current_role_in($allowed_update)) {
 											'google_client_secret'	=> '',
 											'google_signin_enabled'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -937,7 +937,7 @@ if (current_role_in($allowed_update)) {
 											'recaptcha_site_key'	=> '',
 											'recaptcha_secret_key'	=> '',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -962,17 +962,17 @@ if (current_role_in($allowed_update)) {
 				$updates_made++;
 			}
 		}
-		
+
 		/**
 		 * r757 updates
-		 * Add new options that clients can set expiration date when Uploaded New files 
+		 * Add new options that clients can set expiration date when Uploaded New files
 		 */
-		 
+
 		if ($last_update < 757) {
 			$new_database_values = array(
 											'clients_can_set_expiration_date'	=> '0'
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -985,7 +985,7 @@ if (current_role_in($allowed_update)) {
 		 * Uploaded files now save the filename twice on the database. The original filename (to
 		 * use when downloading) and the filename on disk, so no 2 files with the same name exist.
 		 */
-		 
+
 		if ($last_update < 835) {
 			try {
 				$statement = $dbh->query("SELECT original_url FROM " . TABLE_FILES);
@@ -1001,7 +1001,7 @@ if (current_role_in($allowed_update)) {
 		 * Added an option to allow groups to be public so clients can manually opt-in and out of them.
 		 * Added an option to enable or disable the use of CKEDITOR in the files descriptions.
 		 */
-		 
+
 		if ($last_update < 837) {
 			try {
 				$statement = $dbh->query("SELECT public FROM " . TABLE_GROUPS);
@@ -1014,7 +1014,7 @@ if (current_role_in($allowed_update)) {
 											'clients_can_select_group'			=> 'none',
 											'files_descriptions_use_ckeditor'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1056,7 +1056,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 											'enable_landing_for_all_files'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1073,7 +1073,7 @@ if (current_role_in($allowed_update)) {
 											'footer_custom_enable'	=> '0',
 											'footer_custom_content'	=> '',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1108,7 +1108,7 @@ if (current_role_in($allowed_update)) {
 											'email_new_user_subject'					=> '',
 											'email_pass_reset_subject'					=> '',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1125,7 +1125,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
 											'privacy_noindex_site'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1185,7 +1185,7 @@ if (current_role_in($allowed_update)) {
 											'email_account_approve_text'					=> '',
 											'email_account_deny_text'						=> '',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1211,7 +1211,7 @@ if (current_role_in($allowed_update)) {
 											'email_client_edited_subject'						=> '',
 											'email_client_edited_text'							=> '',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1224,14 +1224,14 @@ if (current_role_in($allowed_update)) {
 		 * r1004 updates
 		 * Add new options for the landing page of public groups and files
 		 */
-		 
+
 		if ($last_update < 1004) {
 			$new_database_values = array(
 											'public_listing_page_enable'		=> '0',
 											'public_listing_logged_only'		=> '0',
 											'public_listing_show_all_files'	=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1243,12 +1243,12 @@ if (current_role_in($allowed_update)) {
 		 * r1005 updates
 		 * Add new options for the landing page of public groups and files
 		 */
-		 
+
 		if ($last_update < 1005) {
 			$new_database_values = array(
 											'public_listing_use_download_link'		=> '0',
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1268,7 +1268,7 @@ if (current_role_in($allowed_update)) {
 				$statement = $dbh->query("ALTER TABLE " . TABLE_GROUPS . " ADD public_token varchar(32) NULL");
 				$updates_made++;
 			}
-			
+
 			$statement = $dbh->prepare("SELECT id FROM " . TABLE_GROUPS);
 			$statement->execute();
 			$statement->setFetchMode(PDO::FETCH_ASSOC);
@@ -1281,7 +1281,7 @@ if (current_role_in($allowed_update)) {
 				$updates_made++;
 			}
         }
-        
+
         /**
  		 * r1071 updates
  		 * Started replacing timthumb with SimpleImage
@@ -1348,10 +1348,10 @@ if (current_role_in($allowed_update)) {
 		if ($last_update < 1216) {
 			$statement = $dbh->query("ALTER TABLE `" . TABLE_MEMBERS . "` CHANGE `added_by` `added_by` varchar(32) DEFAULT NULL");
 			$updates_made++;
-			
+
 			$statement = $dbh->query("ALTER TABLE " . TABLE_USERS . " MODIFY address TEXT NULL, MODIFY phone varchar(32) NULL, MODIFY notify TINYINT(1) NOT NULL, MODIFY contact TEXT NULL, MODIFY created_by varchar(32) NULL, MODIFY active TINYINT(1) NOT NULL");
 			$updates_made++;
-			
+
 			$statement = $dbh->query("ALTER TABLE ".TABLE_FILES_RELATIONS." ALTER COLUMN download_count SET DEFAULT '0'");
 			$updates_made++;
 		}
@@ -1367,13 +1367,13 @@ if (current_role_in($allowed_update)) {
                 'clients_can_set_public' => 'none',
                 'clients_new_default_can_set_public' => '0',
             );
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
 				}
 			}
-			
+
             $statement = $dbh->query("UPDATE `" . TABLE_FILES . "` SET original_url = url WHERE original_url IS NULL");
             $updates_made++;
 		}
@@ -1409,7 +1409,7 @@ if (current_role_in($allowed_update)) {
 			$new_database_values = array(
                 'database_version' => INITIAL_DATABASE_VERSION,
             );
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1426,8 +1426,12 @@ if (current_role_in($allowed_update)) {
 											'openid_client_id'		=> '',
 											'openid_client_secret'	=> '',
 											'oidc_signin_enabled'	=> '0',
+											'oidc_auth_url'		=> '',
+											'oidc_token_url'		=> '',
+											'oidc_user_info_url'		=> '',
+											'oidc_user_info_scopes'		=> [],
 										);
-			
+
 			foreach($new_database_values as $row => $value) {
 				if ( add_option_if_not_exists($row, $value) ) {
 					$updates_made++;
@@ -1451,7 +1455,7 @@ if (current_role_in($allowed_update)) {
             ],
         ]);
     }
-	
+
     $statement = $dbh->prepare("SET SQL_MODE='';");
     $statement->execute();
 }

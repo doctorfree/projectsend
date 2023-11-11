@@ -16,6 +16,10 @@
             "OpenID" => array(
                 "enabled" => get_option('oidc_signin_enabled'),
                 "keys" => array("id" => get_option("openid_client_id"), "secret" => get_option("openid_client_secret")),
+                "authurl" => get_option('oidc_auth_url')
+                "tokenurl" => get_option('oidc_token_url')
+                "userinfourl" => get_option('oidc_user_info_url')
+                "scopes" => get_option('oidc_user_info_scopes')
             ),
             "LinkedIn" => array(
                 "enabled" => get_option('linkedin_signin_enabled'),
