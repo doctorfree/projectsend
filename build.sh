@@ -28,8 +28,6 @@ have_comp=$(type -p composer)
   exit 1
 }
 
-composer require jumbojett/openid-connect-php
-
 npm install
 composer update
 gulp
