@@ -76,3 +76,14 @@ test-results
 
 # Misc
 .idea/
+
+# Dirs
+tmp
+
+# Vim files
+.*.sw[a-z]
+*.un~
+Session.vim
+.netrwhist
+tmux*log
+.DS_Store
