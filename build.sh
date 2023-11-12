@@ -38,6 +38,10 @@ else
   printf "\n\tProjectSend not configured for OpenID OAuth\n"
 fi
 
+find . -type d -print0 | xargs -0 sudo chmod 775
+find . -type f -print0 | xargs -0 sudo chmod 644
+sudo chown -R www-data:www-data .
+
 npm install
 composer update
 gulp
