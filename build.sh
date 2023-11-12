@@ -31,7 +31,7 @@ if [ -f okta/oauth ]; then
   source okta/oauth
   sudo sed -i -e "s/__CLIENT_ID__/${SEND_CLIENT_ID}/" \
               -e "s/__CLIENT_SECRET__/${SEND_CLIENT_SECRET}/" \
-              -e "s/__OIDC_ISSUER_URL__/${SEND_ISSUER_URL}/" \
+              -e "s%__OIDC_ISSUER_URL__%${SEND_ISSUER_URL}%" \
            login-openid.php
 else
   printf "\nWARNING: Missing okta/oauth credentials file"
