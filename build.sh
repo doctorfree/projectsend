@@ -27,6 +27,16 @@ have_comp=$(type -p composer)
   printf "\nERROR: composer not found. Exiting.\n"
   exit 1
 }
+if [ -f okta/oauth ]; then
+  source okta/oauth
+  sudo sed -i -e "s/__CLIENT_ID__/${SEND_CLIENT_ID}/" \
+              -e "s/__CLIENT_SECRET__/${SEND_CLIENT_SECRET}/" \
+              -e "s/__OIDC_ISSUER_URL__/${SEND_ISSUER_URL}/" \
+           login-openid.php
+else
+  printf "\nWARNING: Missing okta/oauth credentials file"
+  printf "\n\tProjectSend not configured for OpenID OAuth\n"
+fi
 
 npm install
 composer update
