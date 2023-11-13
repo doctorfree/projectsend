@@ -33,6 +33,12 @@ have_npm=$(type -p npm)
   printf "\nExiting\n"
   exit 1
 }
+have_composer=$(type -p composer)
+[ "${have_composer}" ] || {
+  printf "\nERROR: cannot locate composer needed to build distibution"
+  printf "\nExiting\n"
+  exit 1
+}
 
 ANNO="ProjectSend Version ${VERSION}r${RELEASE}"
 gittag v${VERSION}r${RELEASE} ${ANNO}
@@ -41,6 +47,7 @@ echo "Creating release for version ${VERSION} release ${RELEASE}"
 
 npm install --save-dev npm-pack-zip > /dev/null 2>&1
 npm install > /dev/null 2>&1
+composer update > /dev/null 2>&1
 npm run pack > /dev/null 2>&1
 
 gh release create v${VERSION}r${RELEASE} ${DRAFT} \
