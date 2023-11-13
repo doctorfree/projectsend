@@ -78,6 +78,7 @@ test-results
 .idea/
 
 # Dirs
+okta
 tmp
 
 # Vim files
