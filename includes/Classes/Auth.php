@@ -71,10 +71,10 @@ class Auth
                 'message' => $this->getError(),
             ]);
         }
-        
+
         $props =  $auth_code->getProperties();
         $user = new \ProjectSend\Classes\Users($props['user_id']);
-            
+
         if ($user->isActive()) {
             $this->user = $user;
             $this->login($user);
@@ -84,7 +84,7 @@ class Auth
                 'user_id' => $user->id,
                 'location' => $user->isClient() ? CLIENT_VIEW_FILE_LIST_URL : BASE_URI."dashboard.php",
             ];
-            
+
             return json_encode($results);
         }
 
@@ -132,7 +132,7 @@ class Auth
                                 'location' => BASE_URI,
                             ];
                         }
-                        
+
                         return json_encode($results);
                     }
 
@@ -144,7 +144,7 @@ class Auth
                         'user_id' => $user->id,
                         'location' => $user->isClient() ? CLIENT_VIEW_FILE_LIST_URL : BASE_URI."dashboard.php",
 					];
-                    
+
                     return json_encode($results);
 				}
 				else {
@@ -200,50 +200,58 @@ class Auth
                 exit_with_error_code(404);
                 break;
         }
-            
-        global $hybridauth;
-        $adapter = $hybridauth->authenticate($provider);
-        if ($adapter->isConnected($provider)) {
-            $userProfile = $adapter->getUserProfile();
+
+        if ($provider == 'openid') {
+            global $oidc;
+            $oidc->authenticate();
+            $userProfile = $oidc->requestUserInfo('sub');
             Session::remove('SOCIAL_LOGIN_NETWORK');
         }
+        else {
+            global $hybridauth;
+            $adapter = $hybridauth->authenticate($provider);
+            if ($adapter->isConnected($provider)) {
+                $userProfile = $adapter->getUserProfile();
+                Session::remove('SOCIAL_LOGIN_NETWORK');
+            }
+        }
 
-		/** Look up the system users table to see if the entered username exists */
-		$statement = $this->dbh->prepare("SELECT * FROM " . TABLE_USERS . " WHERE user=:username OR email=:email");
-		$statement->execute([
+		    /** Look up the system users table to see if the entered username exists */
+		    $statement = $this->dbh->prepare("SELECT * FROM " . TABLE_USERS . " WHERE user=:username OR email=:email");
+		    $statement->execute([
             ':username'	=> $userProfile->email,
             ':email'	=> $userProfile->email,
         ]);
-		$count_user = $statement->rowCount();
-		if ($count_user > 0) {
-			$statement->setFetchMode(PDO::FETCH_ASSOC);
-			while ( $row = $statement->fetch() ) {
-                $user = new \ProjectSend\Classes\Users($row['id']);
-                $this->user = $user;
+		    $count_user = $statement->rowCount();
+		    if ($count_user > 0) {
+			    $statement->setFetchMode(PDO::FETCH_ASSOC);
+			    while ( $row = $statement->fetch() ) {
+            $user = new \ProjectSend\Classes\Users($row['id']);
+            $this->user = $user;
 
-				if ($user->isActive()) {
-                    $this->login($user);
+				    if ($user->isActive()) {
+              $this->login($user);
 
-                    /** Record the action log */
-					$this->logger->addEntry([
-                        'action' => 43,
-                        'owner_id' => $user->id,
-                        'owner_user' => $user->username,
-                        'affected_account_name' => $user->name
-                    ]);
+              /** Record the action log */
+					    $this->logger->addEntry([
+                  'action' => 43,
+                  'owner_id' => $user->id,
+                  'owner_user' => $user->username,
+                  'affected_account_name' => $user->name
+              ]);
 
-					if ($user->isClient()) {
-                        ps_redirect(CLIENT_VIEW_FILE_LIST_URL);
-					}
-					else {
-                        ps_redirect(BASE_URI.'dashboard.php');
-					}
-				}
-				else {
-                    $this->setError($this->getAccountInactiveError());
-                    ps_redirect(BASE_URI);
-				}
-            }
+					    if ($user->isClient()) {
+                  ps_redirect(CLIENT_VIEW_FILE_LIST_URL);
+					    }
+					    else {
+                  ps_redirect(BASE_URI.'dashboard.php');
+					    }
+				    }
+				    else {
+              $this->setError($this->getAccountInactiveError());
+              ps_redirect(BASE_URI);
+				    }
+          }
         } else {
             // User does not exist, create if self-registrations are allowed
             //pax($userProfile);
@@ -316,14 +324,14 @@ class Auth
     public function loginLdap($email, $password, $language)
     {
         global $logger;
-        
+
         if ( !$email || !$password ) {
             $return = [
                 'status' => 'error',
                 'message' => __("Email and password cannot be empty.",'cftp_admin')
             ];
-    
-            return json_encode($return);    
+
+            return json_encode($return);
         }
 
 		$selected_form_lang = (!empty( $language ) ) ? $language : SITE_LANG;
@@ -352,7 +360,7 @@ class Auth
             $bind = ldap_bind($ldap, $ldap_admin_user, $ldap_admin_password);
             if ($bind) {
                 $ldap_search_base = get_option('ldap_search_base');
-                
+
                 $arr = array('dn', 1);
                 $result = ldap_search($ldap, $ldap_bind_dn, "(mail=$email)", $arr);
                 $entries = ldap_get_entries($ldap, $result);
@@ -371,7 +379,7 @@ class Auth
                         $return = [
                             'status' => 'success',
                         ];
-            
+
                         return json_encode($return);
                     }
                     else {
@@ -379,8 +387,8 @@ class Auth
                             'status' => 'error',
                             'message' => __("The supplied email or password does not match an existing record.", 'cftp_admin')
                         ];
-            
-                        return json_encode($return);        
+
+                        return json_encode($return);
                     }
                 }
                 else {
@@ -389,8 +397,8 @@ class Auth
                         'status' => 'error',
                         'message' => __("The supplied email or password does not match an existing record.", 'cftp_admin')
                     ];
-        
-                    return json_encode($return);        
+
+                    return json_encode($return);
                 }
             }
             else {
@@ -398,8 +406,8 @@ class Auth
                     'status' => 'error',
                     'message' => __("Error binding to LDAP server.",'cftp_admin')
                 ];
-    
-                return json_encode($return);    
+
+                return json_encode($return);
             }
         } catch (\Exception $e) {
             $return = [
@@ -431,7 +439,7 @@ class Auth
 		$_SESSION = [];
         session_destroy();
         session_regenerate_id(true);
-        
+
         global $hybridauth;
         if (!empty($hybridauth)) {
             try {
@@ -442,7 +450,7 @@ class Auth
                     'status' => 'error',
                     'message' => sprintf(__("Logout error: %s", 'cftp_admin'), $e->getMessage())
                 ];
-    
+
                 return json_encode($return);
                 */
             }

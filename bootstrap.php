@@ -83,6 +83,7 @@ require_once ROOT_DIR . '/includes/functions.public.php';
 // Social login
 if (!defined('IS_INSTALL')) {
     require_once ROOT_DIR . '/includes/hybridauth.php';
+    require_once ROOT_DIR . '/includes/oidc.php';
 }
 
 // Security

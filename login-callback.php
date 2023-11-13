@@ -5,8 +5,15 @@ require_once 'bootstrap.php';
 
 global $hybridauth;
 global $auth;
+global $oidc;
 $provider = Session::get('SOCIAL_LOGIN_NETWORK');
-$adapter = $hybridauth->authenticate($provider);
-if ($adapter->isConnected($provider)) {
+if ($provider == 'openid') {
+  $oidc->authenticate();
+  $auth->socialLogin($provider);
+}
+else {
+  $adapter = $hybridauth->authenticate($provider);
+  if ($adapter->isConnected($provider)) {
     $auth->socialLogin($provider);
+  }
 }
