@@ -1426,10 +1426,10 @@ if (current_role_in($allowed_update)) {
 											'openid_client_id'		=> '',
 											'openid_client_secret'	=> '',
 											'oidc_signin_enabled'	=> '0',
-											'oidc_auth_url'		=> '',
-											'oidc_token_url'		=> '',
-											'oidc_user_info_url'		=> '',
-											'oidc_user_info_scopes'		=> [],
+											// 'oidc_auth_url'		=> '',
+											// 'oidc_token_url'		=> '',
+											// 'oidc_user_info_url'		=> '',
+											// 'oidc_user_info_scopes'		=> [],
 										);
 
 			foreach($new_database_values as $row => $value) {

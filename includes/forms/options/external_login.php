@@ -33,10 +33,10 @@
                         'enabled' => 'oidc_signin_enabled',
                         'id' => 'openid_client_id',
                         'secret' => 'openid_client_secret',
-                        'authurl' => 'oidc_auth_url',
-                        'tokenurl' => 'oidc_token_url',
-                        'userinfourl' => 'oidc_user_info_url',
-                        'scopes' => 'oidc_user_info_scopes',
+                        // 'authurl' => 'oidc_identifier_url',
+                        // 'tokenurl' => 'oidc_token_url',
+                        // 'userinfourl' => 'oidc_user_info_url',
+                        // 'scopes' => 'oidc_user_info_scopes',
                     ),
                     'callback' => true,
                     'instructions' => LINK_DOC_OPENID_SIGN_IN,
@@ -240,7 +240,7 @@
     </div>
 </div>
 */ ?>
-<?php /*
+<?php
 <h5><i class="fa fa-openid"></i> OpenID</h5>
 <?php
     $oidc_enabled = get_option('oidc_signin_enabled');
@@ -274,4 +274,3 @@
         }
     ?>
 </div>
-*/
