@@ -36,7 +36,12 @@ switch ($bfstatus['status']) {
         break;
 }
 
-if ($_POST) {
+$vouch_user = '';
+if (!empty($_SERVER['HTTP_X_VOUCH_USER'])) {
+    $vouch_user = $_SERVER['HTTP_X_VOUCH_USER'];
+}
+if ($vouch_user == '') {
+  if ($_POST) {
     switch ($_POST['do']) {
         default:
             exit_with_error_code(403);
@@ -98,6 +103,16 @@ if ($_POST) {
             }
             break;
     }
+  }
+} else {
+  $login = json_decode($auth->validateVouchRequest($vouch_user));
+  if ($login->status == 'success') {
+    $user = new \ProjectSend\Classes\Users($login->user_id);
+    ps_redirect($login->location);
+  } else {
+    $flash->error($auth->getError());
+    ps_redirect(BASE_URI);
+  }
 }
 
 $csrf_token = getCsrfToken();

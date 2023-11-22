@@ -44,7 +44,7 @@ class Auth
 
         $_SESSION['user_id'] = $user->id;
         $_SESSION['username'] = $user->username;
-        $_SESSION['role'] = (int)$user->role;
+        $_SESSION['role'] = $user->role;
         $_SESSION['account_type'] = $user->account_type;
 
         session_regenerate_id(true);
@@ -59,6 +59,121 @@ class Auth
         ]);
     }
 
+    public function validateVouchRequest($email)
+    {
+        // We really should get the $userProfile from Vouch
+        // similar to what is done for hybridauth:
+        // $userProfile = $adapter->getUserProfile();
+
+        /** Look up the system users table to see if the entered username exists */
+        $statement = $this->dbh->prepare("SELECT * FROM " . TABLE_USERS . " WHERE user=:username OR email=:email");
+        $statement->execute([
+            ':username'        => $email,
+            ':email'        => $email,
+        ]);
+        $count_user = $statement->rowCount();
+        if ($count_user > 0) {
+            $statement->setFetchMode(PDO::FETCH_ASSOC);
+            while ( $row = $statement->fetch() ) {
+               $user = new \ProjectSend\Classes\Users($row['id']);
+               $this->user = $user;
+
+               if ($user->isActive()) {
+                   $this->login($user);
+
+                   /** Record the action log */
+                   $this->logger->addEntry([
+                       'action' => 43,
+                       'owner_id' => $user->id,
+                       'owner_user' => $user->username,
+                       'affected_account_name' => $user->name
+                   ]);
+
+                   if ($user->isClient()) {
+                       ps_redirect(CLIENT_VIEW_FILE_LIST_URL);
+                   }
+                   else {
+                       ps_redirect(BASE_URI.'dashboard.php');
+                   }
+               }
+               else {
+                   $this->setError($this->getAccountInactiveError());
+                   ps_redirect(BASE_URI);
+               }
+            }
+        } else {
+            // User does not exist, create if self-registrations are allowed
+            if (get_option('clients_can_register') == '0') {
+                $this->setError($this->error_strings['no_self_registration']);
+                ps_redirect(BASE_URI);
+            }
+
+            $email_parts = explode('@', $email);
+            $username = (!username_exists($email_parts[0])) ? $email_parts[0] : generate_username($email_parts[0]);
+            $password = generate_random_password();
+
+            // Generate name from first part of email address
+            $name_parts = explode('.', $email_parts[0]);
+            $firstname = ucfirst($name_parts[0]);
+            $lastname = ucfirst($name_parts[1]);
+
+            /** Validate the information from the posted form. */
+            /** Create the user if validation is correct. */
+            $new_client = new \ProjectSend\Classes\Users();
+            $new_client->setType('new_user');
+            $new_client->set([
+                'username' => $username,
+                'password' => $password,
+                // 'name' => $userProfile->firstName . ' ' . $userProfile->lastName,
+                'name' => $firstname . ' ' . $lastname,
+                'email' => $email,
+                'address' => null,
+                'phone' => null,
+                'contact' => null,
+                'max_file_size' => 0,
+                'notify_upload' => 1,
+                'notify_account' => 1,
+                'active' => (get_option('clients_auto_approve') == 0) ? 0 : 1,
+                'account_requested'        => (get_option('clients_auto_approve') == 0) ? 1 : 0,
+                'type' => 'new_client',
+                'role' => 7,
+                'recaptcha' => null,
+            ]);
+
+            $new_client->create();
+            if (!empty($new_response['id'])) {
+                $new_client->triggerAfterSelfRegister();
+
+                // Save as metadata
+                $meta_name = 'vouch_proxy';
+                $meta_value = json_encode($email);
+                $statement = $this->dbh->prepare("INSERT INTO " . TABLE_USER_META . " (user_id, name, value)" . "VALUES (:id, :name, :value)");
+                $statement->bindParam(':id', $this->user->id, PDO::PARAM_INT);
+                $statement->bindParam(':name', $meta_name);
+                $statement->bindParam(':value', $meta_value);
+                $statement->execute();
+
+                /** Record the action log */
+                $this->logger->addEntry([
+                    'action' => 42,
+                    'owner_id' => $new_client->id,
+                    'owner_user' => $new_client->username,
+                    'affected_account_name' => $new_client->username
+                ]);
+
+                $redirect_to = BASE_URI.'register.php?success=1';
+
+                if (get_option('clients_auto_approve') == 1) {
+                    $this->authenticate($username, $password);
+                    $redirect_to = 'my_files/index.php';
+                }
+
+                // Redirect
+                ps_redirect($redirect_to);
+            }
+        }
+    }
+
     public function validate2faRequest($token, $code)
     {
         $auth_code = new \ProjectSend\Classes\AuthenticationCode();
@@ -71,10 +186,10 @@ class Auth
                 'message' => $this->getError(),
             ]);
         }
-        
+
         $props =  $auth_code->getProperties();
         $user = new \ProjectSend\Classes\Users($props['user_id']);
-            
+
         if ($user->isActive()) {
             $this->user = $user;
             $this->login($user);
@@ -84,7 +199,7 @@ class Auth
                 'user_id' => $user->id,
                 'location' => $user->isClient() ? CLIENT_VIEW_FILE_LIST_URL : BASE_URI."dashboard.php",
             ];
-            
+
             return json_encode($results);
         }
 
@@ -132,7 +247,7 @@ class Auth
                                 'location' => BASE_URI,
                             ];
                         }
-                        
+
                         return json_encode($results);
                     }
 
@@ -144,7 +259,7 @@ class Auth
                         'user_id' => $user->id,
                         'location' => $user->isClient() ? CLIENT_VIEW_FILE_LIST_URL : BASE_URI."dashboard.php",
 					];
-                    
+
                     return json_encode($results);
 				}
 				else {
@@ -200,7 +315,7 @@ class Auth
                 exit_with_error_code(404);
                 break;
         }
-            
+
         global $hybridauth;
         $adapter = $hybridauth->authenticate($provider);
         if ($adapter->isConnected($provider)) {
@@ -316,14 +431,14 @@ class Auth
     public function loginLdap($email, $password, $language)
     {
         global $logger;
-        
+
         if ( !$email || !$password ) {
             $return = [
                 'status' => 'error',
                 'message' => __("Email and password cannot be empty.",'cftp_admin')
             ];
-    
-            return json_encode($return);    
+
+            return json_encode($return);
         }
 
 		$selected_form_lang = (!empty( $language ) ) ? $language : SITE_LANG;
@@ -352,7 +467,7 @@ class Auth
             $bind = ldap_bind($ldap, $ldap_admin_user, $ldap_admin_password);
             if ($bind) {
                 $ldap_search_base = get_option('ldap_search_base');
-                
+
                 $arr = array('dn', 1);
                 $result = ldap_search($ldap, $ldap_bind_dn, "(mail=$email)", $arr);
                 $entries = ldap_get_entries($ldap, $result);
@@ -371,7 +486,7 @@ class Auth
                         $return = [
                             'status' => 'success',
                         ];
-            
+
                         return json_encode($return);
                     }
                     else {
@@ -379,8 +494,8 @@ class Auth
                             'status' => 'error',
                             'message' => __("The supplied email or password does not match an existing record.", 'cftp_admin')
                         ];
-            
-                        return json_encode($return);        
+
+                        return json_encode($return);
                     }
                 }
                 else {
@@ -389,8 +504,8 @@ class Auth
                         'status' => 'error',
                         'message' => __("The supplied email or password does not match an existing record.", 'cftp_admin')
                     ];
-        
-                    return json_encode($return);        
+
+                    return json_encode($return);
                 }
             }
             else {
@@ -398,8 +513,8 @@ class Auth
                     'status' => 'error',
                     'message' => __("Error binding to LDAP server.",'cftp_admin')
                 ];
-    
-                return json_encode($return);    
+
+                return json_encode($return);
             }
         } catch (\Exception $e) {
             $return = [
@@ -431,7 +546,7 @@ class Auth
 		$_SESSION = [];
         session_destroy();
         session_regenerate_id(true);
-        
+
         global $hybridauth;
         if (!empty($hybridauth)) {
             try {
@@ -442,7 +557,7 @@ class Auth
                     'status' => 'error',
                     'message' => sprintf(__("Logout error: %s", 'cftp_admin'), $e->getMessage())
                 ];
-    
+
                 return json_encode($return);
                 */
             }
